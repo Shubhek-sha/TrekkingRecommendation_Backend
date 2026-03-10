@@ -1,7 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes.js";
+import authRoutes from "./routes/user.routes.js";
+import recommendationRoutes from "./routes/recommendation.routes.js";
+import trekRoutes from "./routes/trek.routes.js";
 
 dotenv.config();
 
@@ -10,10 +12,32 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+console.log("📡 Registering routes...");
 app.use("/api/auth", authRoutes);
+console.log("✅ Auth routes registered");
+
+app.use("/api/recommend", recommendationRoutes);
+console.log("✅ Recommendation routes registered");
+
+app.use("/api/treks", trekRoutes);
+console.log("✅ Trek routes registered");
 
 app.get("/", (req, res) => {
   res.send("Server running");
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+// 404 handler
+app.use((req, res) => {
+  console.log(`❌ 404 - Route not found: ${req.method} ${req.path}`);
+  res.status(404).json({ error: "Route not found" });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error("❌ Server error:", err.message);
+  res.status(500).json({ error: err.message });
+});
+
+app.listen(5000, () => {
+  console.log("🚀 Server running on port 5000");
+});

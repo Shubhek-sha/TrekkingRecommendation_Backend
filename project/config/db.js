@@ -5,9 +5,12 @@ const pool = mysql.createPool({
   user: "root",
   password: "shub", // your MySQL password
   database: "trek", // your database name
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-// Test connection
+// Test connection with better error handling
 pool
   .getConnection()
   .then((conn) => {
@@ -16,6 +19,25 @@ pool
   })
   .catch((err) => {
     console.error("❌ DB connection failed:", err.message);
+    // Don't exit - the API can still work with delayed DB operations
   });
 
-export default pool;
+// Export a query function that handles the connection
+const query = async (sql, args = []) => {
+  try {
+    const connection = await pool.getConnection();
+    try {
+      const result = await connection.query(sql, args);
+      return result;
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error("❌ Database Query Error:", error.message);
+    console.error("SQL:", sql);
+    console.error("Args:", args);
+    throw error;
+  }
+};
+
+export default { query, pool };
