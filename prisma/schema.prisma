@@ -23,11 +23,12 @@ model User {
   fitness_level          Int?
   preferred_difficulty   String?
   preferred_max_duration Int?
-  location_country       String?
+  location_country       String?     @default("Nepal")
   location_city          String?
   bio                    String?     @db.Text
   otp                    String?
   otp_expires            DateTime?
+  isVerified             Boolean     @default(false)
   trek_images            TrekImage[]
 
   @@map("users")
@@ -49,7 +50,7 @@ model Trek {
   ending_point                      String?
   daily_trek_hours                  Int?
   temperature_range                 String?
-  permits_required                  String? // "Yes"/"No"
+  permits_required                  String?
   guide_mandatory                   Int?        @default(0) // 1 or 0
   fitness_level_required            Int?
   water_availability                Int?        @default(1) // 1 or 0
@@ -77,7 +78,7 @@ model TrekImage {
   trek_id    Int
   url        String
   caption    String?
-  is_cover   Int     @default(0) // 1 or 0
+  is_cover   Int     @default(0)
   sort_order Int?    @default(0)
 
   user User? @relation(fields: [user_id], references: [user_id])
